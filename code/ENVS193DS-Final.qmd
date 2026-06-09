@@ -1,0 +1,21 @@
+---
+title: "ENVS193DS-Final"
+author: "Megan Zhao"
+date: 6/9/26
+format: pdf
+toc: true
+editor: source
+messages: false
+warning: false
+---
+
+[GitHub Repository](https://github.com/meandmymonky/ENVS-193DS_spring-2026_final)
+
+```{r}
+#| label: reading-packages
+
+# reading packages
+ 
+ 
+```
+
