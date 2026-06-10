@@ -32,6 +32,7 @@ library(MuMIn)
 library(forcats)
 library(DHARMa)
 library(ggeffects)
+library(gtsummary)
 
 ```
 
@@ -46,38 +47,7 @@ nests <- read.csv(here('data', 'nest_data_final.csv'))
 ```
 
 ```{r}
-#| label: data-exploration
-#| echo: false
 
-# interaction term data frame
-# create new object called 'nests_clean' from 'nests'
-nests_clean_it <- nests |> 
-  # clean names
-  clean_names() |> 
-  # filter ant species
-  filter(
-    ant_species %in% c("RRB", "AB", "BBR")) |> 
-  # full names
-  mutate(
-    species_name_full = recode_values(ant_species,
-    "RRB" ~ "Crematogaster mimosae",
-    "AB" ~ "Crematogaster sjostedti", 
-    "BBR" ~ "Crematogaster nigriceps")) |> 
-  # reordering species
-  mutate(
-    # order of species
-    species_name_full = fct_relevel(species_name_full,
-                                    "Crematogaster mimosae",
-                                    "Crematogaster sjostedti",
-                                    "Crematogaster nigriceps")) |>
-  # arrange in order
-  arrange(species_name_full) |> 
-  # columns of interest
-  select(
-    height_cm, 
-    case_control, 
-    species_name_full,
-    alive)
 
 ```
 
@@ -120,6 +90,7 @@ nests_clean <- nests |>
   # reordering species
   mutate(
     # order of species
+    species_name_full = as_factor(species_name_full),
     species_name_full = fct_relevel(species_name_full,
                                     "Crematogaster mimosae",
                                     "Crematogaster sjostedti",
@@ -151,13 +122,13 @@ Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C
 
 ## d.
 
-| Model number | Ant Species | Tree Height | Tree life state |  
-|--------------|:-----------:|:-----------:|:-----------:|  
-| 1 (no term)  |      x      |      x      |             |
-| 2 (with term)|      x      |      x      |      x      |
-| 3 (species)  |      x      |             |             |
-| 4 (height)   |             |      x      |             |
-| 5 (canopy)   |             |             |      x      |
+|  Model number | Ant Species | Tree Height | Predictor List                   |  
+|:-------------:|:-----------:|:-----------:|:--------------------------------:|  
+| 0 (null)      |             |             |  no predictors                   |
+| 1 (full model)|      x      |      x      |  all predictors                  | 
+| 2 (species)   |      x      |             |  species                         |
+| 3 (height)    |             |      x      |  tree height                     |
+| 4 (interact)  |      x      |      x      | all predictors -- reliance       |
 
 ## e.
 
@@ -165,30 +136,45 @@ Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C
 #| label: model-running
 #| output: false
 
-# model 1
-model_1 <- lm(
+# model 0: null model
+model_0 <- glm(
+  # formula
+  case_control ~ 1,
+  # data frame
+  data = nests_clean,
+  family = "binomial") 
+
+# model 1: no interaction
+model_1 <- glm(
+  # formula
   case_control ~ height_cm + species_name_full,
-              data = nests_clean_it)
+  # data frame
+  data = nests_clean,
+  family = "binomial") 
 
-# model 2
-model_2 <- lm(
-  case_control ~ height_cm + species_name_full + alive,
-              data = nests_clean_it)
-
-# model 3
-model_3 <- lm(
+# model 2: ant species
+model_2 <- glm(
   case_control ~ species_name_full,
-              data = nests_clean_it)
+  # data frame
+  data = nests_clean,
+  family = "binomial") 
 
-# model 4
-model_4 <- lm(
+# model 3: tree height
+model_3 <- glm(
+  # formula
   case_control ~ height_cm,
-              data = nests_clean_it)
+  # data frame
+  data = nests_clean,
+  family = "binomial") 
 
-# model 5
-model_5 <- lm(
-  case_control ~ alive,
-              data = nests_clean_it)
+# model 4: interaction
+model_4 <- glm(
+  # formula
+  case_control ~ height_cm * species_name_full,
+  # data frame
+  data = nests_clean,
+  family = "binomial") 
+
 ```
 
 
@@ -200,17 +186,17 @@ model_5 <- lm(
 
 # running AICc
 AICc(
+  model_0,
   model_1,
   model_2,
   model_3,
-  model_4,
-  model_5
+  model_4
 ) |> 
 arrange(AICc)
 
 ```
 
-The best model as determined by Akaike’s Information Criterion (AIC) was the model using predictor variables ant species, tree height, and canopy area for the response variable of bird nest presence (model 2).
+The best model as determined by Akaike’s Information Criterion (AIC) was the model using interacting predictor variables ant species and tree height for the response variable of bird nest presence (model 4).
 
 ## g.
 
@@ -218,10 +204,12 @@ The best model as determined by Akaike’s Information Criterion (AIC) was the m
 #| label: dharma-diagnostics
 
 # running dharma diagnostic
-diagnostic_checking <- simulateResiduals(fittedModel = model_1)
+diagnostic_checking <- simulateResiduals(fittedModel = model_4)
 
 # display dharma diagnostic
 plot(diagnostic_checking)
+
+summary(model_4)
 
 ```
 
@@ -231,16 +219,56 @@ plot(diagnostic_checking)
 #| label: model-predictions
 
 # generating predictions
-preds <- ggpredict(
-  model_1,
+predictions <- ggpredict(
+  model_4,
   terms = c("height_cm", "species_name_full")) |> 
   # renaming columns
-  rename(height = x,
+  rename(height_cm = x,
          species_name_full = group)
 
 ```
 
 ```{r}
+ggplot(data = nests_clean,
+       aes(x = height_cm,
+           y = case_control)) +
+  geom_point(aes(color = species_name_full),
+             shape = 21) +
+  geom_line(data = predictions,
+            aes(x = height_cm,
+                y = predicted,
+                color = species_name_full),
+            linewidth = 2) +
+  geom_ribbon(data = predictions,
+              aes(x = height_cm,
+                  y = predicted,
+                  ymin = conf.low,
+                  ymax = conf.high,
+                  fill = species_name_full),
+              alpha = 0.1) +
+  facet_wrap(~ species_name_full,
+             labeller = labeller(species_name_full))
+```
+
+```{r}
+#| label: visualizations
+
+ggplot(data = nests_clean,
+       mapping = aes(x = height_cm,
+                     y = case_control,
+                     color = species_name_full)) +
+  geom_jitter(width = 0,
+              height = 0.2,
+              alpha = 0.5,
+              shape = 21) +
+  geom_pointrange(data = predictions,
+                  mapping = aes(x = height_cm,
+                                y = predicted,
+                                ymin = conf.low,
+                                ymax = conf.high),
+                  inherit.aes = FALSE) +
+  facet_wrap(~ species_name_full) +
+  theme(legend.position = "none")
 
 ```
 
