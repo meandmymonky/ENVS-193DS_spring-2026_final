@@ -7,7 +7,6 @@ toc: true
 editor: source
 messages: false
 warning: false
-toc: true
 ---
 
 # Repository Link
@@ -78,7 +77,7 @@ nests_clean_it <- nests |>
     height_cm, 
     case_control, 
     species_name_full,
-    canopy_area)
+    alive)
 
 ```
 
@@ -167,25 +166,31 @@ Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C
 #| output: false
 
 # model 1
-model_1 <- lm(case_control ~ height_cm + species_name_full,
+model_1 <- lm(
+  case_control ~ height_cm + species_name_full,
               data = nests_clean_it)
 
 # model 2
-model_2 <- lm(case_control ~ height_cm + species_name_full + canopy_area,
+model_2 <- lm(
+  case_control ~ height_cm + species_name_full + alive,
               data = nests_clean_it)
 
 # model 3
-model_3 <- lm(case_control ~ species_name_full,
+model_3 <- lm(
+  case_control ~ species_name_full,
               data = nests_clean_it)
 
 # model 4
-model_4 <- lm(case_control ~ height_cm,
+model_4 <- lm(
+  case_control ~ height_cm,
               data = nests_clean_it)
 
 # model 5
-model_5 <- lm(case_control ~ canopy_area,
+model_5 <- lm(
+  case_control ~ alive,
               data = nests_clean_it)
 ```
+
 
 ## f.
 
@@ -193,7 +198,7 @@ model_5 <- lm(case_control ~ canopy_area,
 #| label: AIC
 #| output: false
 
-# 
+# running AICc
 AICc(
   model_1,
   model_2,
@@ -212,30 +217,30 @@ The best model as determined by Akaike’s Information Criterion (AIC) was the m
 ```{r}
 #| label: dharma-diagnostics
 
-diagnostic_checking <- simulateResiduals(fittedModel = model_2)
+# running dharma diagnostic
+diagnostic_checking <- simulateResiduals(fittedModel = model_1)
+
+# display dharma diagnostic
+plot(diagnostic_checking)
 
 ```
 
 ## h.
 
 ```{r}
-#| label: figure
+#| label: model-predictions
 
-ggplot(data = nests_clean_it,
-       mapping = aes(x = case_control,
-                     y = height_cm,
-                     color = case_control)) +
-  geom_jitter(width = 0.1,
-              height = 0,
-              alpha = 0.5,
-              shape = 21) +
-  geom_pointrange(data = preds,
-                  mapping = aes(x = water_treatment,
-                                y = predicted,
-                                ymin = conf.low,
-                                ymax = conf.high)) +
-  facet_wrap(~ species_name) +
-  theme(legend.position = 'none')
+# generating predictions
+preds <- ggpredict(
+  model_1,
+  terms = c("height_cm", "species_name_full")) |> 
+  # renaming columns
+  rename(height = x,
+         species_name_full = group)
+
+```
+
+```{r}
 
 ```
 
@@ -253,3 +258,4 @@ My visualizations use different metrics and different model types across Homewor
 
 ## b. 
 
+Using the response variable of productivity % and the predictor variable of activity time (as expressed in my affective visualization as an aggregation of outside activity and class time), one analysis that we talked about this quarter that I could apply to my research question is a correlation analysis. Both of my variables are numerical continuous variables, with one variable (activity time) predicted to have an influence on the other variable (productivity %). Subsequently, I believe that a correlation analysis is appropriate in trying to answer the question: how do my activities impact my productivity?
