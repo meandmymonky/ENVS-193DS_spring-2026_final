@@ -16,4 +16,4 @@ There is a `code` folder in which all code for visualizations (kelp growth-ocean
 
 # Rendered PDF
 
-The rendered .pdf for ENVS Final Exam is [here](www.google.com)
+The rendered .pdf for ENVS Final Exam is [here](code/ENVS193DS-Final.pdf)
