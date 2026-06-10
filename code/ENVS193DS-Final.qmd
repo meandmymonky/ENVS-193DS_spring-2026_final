@@ -44,12 +44,30 @@ Data:
 # creating object from 'nests' from data
 nests <- read.csv(here('data', 'nest_data_final.csv'))
 
+# creating object 'mz_data' from data
+mz_data <- read_xlsx(here('data', '193DS-personal-data-updated.xlsx'))
+
 ```
 
 ```{r}
+#| label: cleaning-data
 
+# create new object called 'mz_clean' from 'mz_data'
+mz_clean <- mz_data |> 
+  # clean names
+  clean_names() |>
+  # create new data column 'completed_v_intended'
+  mutate(
+    # use data from select columns to calculate new column
+    completed_v_intended = (
+      number_of_completed_tasks/number_of_intended_tasks
+    ) * 100) |> 
+  mutate(total_activity_time = (
+    time_spent_on_activites_hrs + time_spent_in_class_hrs
+    ))
 
 ```
+
 
 # Problem 1
 
@@ -84,9 +102,9 @@ nests_clean <- nests |>
   # full names
   mutate(
     species_name_full = recode_values(ant_species,
-    "RRB" ~ "Crematogaster mimosae",
-    "AB" ~ "Crematogaster sjostedti", 
-    "BBR" ~ "Crematogaster nigriceps")) |> 
+                                      "RRB" ~ "Crematogaster mimosae",
+                                      "AB" ~ "Crematogaster sjostedti", 
+                                      "BBR" ~ "Crematogaster nigriceps")) |> 
   # reordering species
   mutate(
     # order of species
@@ -116,9 +134,9 @@ In this data set, 1s and 0s indicate if a tree has a nest (1) or is "available" 
 
 ## c.
 
-Tree Height: Tree height is a continuous variable, measured in centimeters. According to paragraph three in the introduction subsection, as well as paragraph two in the results subsection of **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
+Tree Height: Tree height is a continuous variable, measured in centimeters. According to paragraph three in the introduction subsection, as well as paragraph two in the results subsection of "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
 
-Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph three in the introduction subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may protect nests, reducing nest predation rates, and increase overall bird lifetime fitness.
+Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph three in the introduction subsection in "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may protect nests, reducing nest predation rates, and increase overall bird lifetime fitness.
 
 ## d.
 
@@ -192,8 +210,8 @@ AICc(
   model_3,
   model_4
 ) |> 
-# display ordered results
-arrange(AICc)
+  # display ordered results
+  arrange(AICc)
 
 ```
 
@@ -223,7 +241,8 @@ summary(model_4)
 # generating all predictions
 predictions <- ggpredict(
   model_4,
-  terms = c("height_cm [all]", "species_name_full")) |> 
+  terms = c("height_cm [all]", 
+            "species_name_full")) |> 
   # renaming columns
   rename(height_cm = x,
          species_name_full = group)
@@ -233,38 +252,67 @@ predictions <- ggpredict(
 ```{r}
 #| label: data-visualization
 
+# base layer: ggplot
+# use nests_clean data
 ggplot(data = nests_clean,
+       # x-axis
        aes(x = height_cm,
+           # y-axis
            y = case_control)) +
+  # first layer: points
+  # color by species
   geom_point(aes(color = species_name_full),
+             # change point shape
              shape = 21) +
+  # second layer: line
+  # use predictions data
   geom_line(data = predictions,
+            # x-axis
             aes(x = height_cm,
+                # y-axis
                 y = predicted,
+                # color by species
                 color = species_name_full),
+            # set linewidth
             linewidth = 2) +
+  # third layer: ribbon
+  # use predictions data
   geom_ribbon(data = predictions,
+              # x-axis
               aes(x = height_cm,
+                  # y-axis
                   y = predicted,
+                  # y-min
                   ymin = conf.low,
-                  ymax = conf.high,,
+                  # y-max
+                  ymax = conf.high,
+                  # fill by species
                   fill = species_name_full),
+              # change opacity
               alpha = 0.1) +
+  # panels by species
   facet_wrap(vars(species_name_full)) +
   labs(
+    # label x-axis
     x = "Tree Height (cm)",
+    # label y-axis
     y = "Probability of nest occurence (%)") + 
+  # color by species
   scale_color_manual(
     values = c("Crematogaster mimosae" = "violetred2",
                "Crematogaster sjostedti" = "steelblue1",
                "Crematogaster nigriceps" = "mediumorchid4")) +
+  # use classic theme
   theme_classic() +
+  # remove legend
   theme(legend.position = "none")
 
 ```
 
 
 ## i.
+
+Figure 1. Ant species tree presence and tree height on nest presence probability. Points represent observations of individual nest occurrences (0||1) with their respective tree heights (cm). Solid lines represent model predictions for nest presence, with shaded areas indicating the 95% confidence interval range. Colors represent ant species (pink: C. mimosae, blue: C. sjostedti, purple: C. nigriceps). Data originally from Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: **Symbiotic acacia ants drive nesting behavior by birds in an African savanna** [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322
 
 ## j.
 
@@ -279,7 +327,13 @@ ggpredict(model_4,
 
 ```
 
-## k.
+## k. **** come back
+
+Ant species presence and tree height interact to predict probability of bird presence. As ant aggressiveness and tree height increase, the probability of nest presence increases. 
+
+Additionally, the effect of tree height on nest presence probability is stronger for 
+
+At 600 cm, nest presence probability is 0.74 (95% CI:[0.48, 0.90]) for C. mimosae, 0.20 (95% CI:[0.00, 0.99]) for C. sjostedti, and 1.00 (95% CI:[1.00, 1.00]) for C. nigriceps; bird nest occurrence occurs at higher rates in trees with more aggressive acacia ant species, indicating that more aggressive symbionts may confer additional protections from predators beyond residing trees to bird nests, reducing nest predation rates and increasing overall bird lifetime fitness.
 
 # Problem 3
 
@@ -289,4 +343,47 @@ My visualizations use different metrics and different model types across Homewor
 
 ## b. 
 
-Using the response variable of productivity % and the predictor variable of activity time (as expressed in my affective visualization as an aggregation of outside activity and class time), one analysis that we talked about this quarter that I could apply to my research question is a correlation analysis. Both of my variables are numerical continuous variables, with one variable (activity time) predicted to have an influence on the other variable (productivity %). Subsequently, I believe that a correlation analysis is appropriate in trying to answer the question: how do my activities impact my productivity?
+Using the response variable of productivity % and the predictor variable of activity time (as expressed in my affective visualization as an aggregation of outside activity and class time), one analysis that we talked about this quarter that I could apply to my research question is a correlation analysis, specifically a Spearmans correlation. Both of my variables are independent numerical continuous variables, with one variable (activity time) predicted to have an influence on the other variable (productivity %). Subsequently, I believe that a correlation analysis is appropriate in trying to answer the question: how do my activities impact my productivity?
+
+## c.
+
+```{r}
+#| label: assumption checking
+
+# base layer: ggplot
+ggplot(
+  # starting data frame
+  data = mz_data,
+  # x-axis
+  mapping = aes(x = "",
+                # y-axis
+                y = kelp_elong)
+) +
+  # first layer: points
+  geom_point(
+    # coloring points
+    color = 'chartreuse4',
+    # changing opacity
+    alpha = 0.8
+  ) +
+  # relabelling x-axis, y-axis, and title
+  labs(
+    # label x-axis
+    x = 'Ocean Temperature (°C)',
+    # label y-axis
+    y = expression(paste('Giant Kelp Frond Elongation Rate (cm day' ^-1,')')),
+    # add chart title
+    title = 'Ocean Temperature and Giant Kelp Frond Growth Correlation')
+
+```
+
+
+## d.
+
+## e.
+
+## f.
+
+## g.
+
+Completed in section
