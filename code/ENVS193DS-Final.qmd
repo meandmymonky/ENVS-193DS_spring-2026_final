@@ -116,9 +116,9 @@ In this data set, 1s and 0s indicate if a tree has a nest (1) or is "available" 
 
 ## c.
 
-Tree Height: Tree height is a continuous variable. According to paragraph two in the results subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
+Tree Height: Tree height is a continuous variable, measured in centimeters. According to paragraph three in the introduction subsection, as well as paragraph two in the results subsection of **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
 
-Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph one in the discussion subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may reduce nest predation rates, and increase overall bird lifetime fitness.
+Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph three in the introduction subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may protect nests, reducing nest predation rates, and increase overall bird lifetime fitness.
 
 ## d.
 
@@ -192,6 +192,7 @@ AICc(
   model_3,
   model_4
 ) |> 
+# display ordered results
 arrange(AICc)
 
 ```
@@ -209,6 +210,7 @@ diagnostic_checking <- simulateResiduals(fittedModel = model_4)
 # display dharma diagnostic
 plot(diagnostic_checking)
 
+# display summary
 summary(model_4)
 
 ```
@@ -271,6 +273,7 @@ ggplot(data = nests_clean,
 
 # generating prediction
 ggpredict(model_4,
+          # setting terms
           terms = c("height_cm [600]",
                     "species_name_full"))
 
