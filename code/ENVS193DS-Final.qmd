@@ -44,34 +44,6 @@ nests <- read.csv(here('data', 'nest_data_final.csv'))
 ```
 
 ```{r}
-#| label: cleaning-data
-
-# create new object called 'nests_clean' from 'nests'
-nests_clean <- nests |> 
-  # clean names
-  clean_names() |> 
-  filter(
-    ant_species %in% c("RRB", "AB", "BBR")) |> 
-  mutate(
-    species_name_full = recode_values(ant_species,
-    "RRB" ~ "Crematogaster mimosae",
-    "AB" ~ "Crematogaster sjostedti", 
-    "BBR" ~ "Crematogaster nigriceps")) |> 
-  mutate(
-    species_name_full = fct_relevel(species_name_full,
-                                    "Crematogaster mimosae",
-                                    "Crematogaster sjostedti",
-                                    "Crematogaster nigriceps")) |> 
-  arrange(species_name_full) |> 
-  select(
-    height_cm, case_control, 
-    species_name_full)
-
-nests_clean |> slice_sample(n = 10)
-
-```
-
-```{r}
 #| label: data-exploration
 #| echo: false
 ```
@@ -95,4 +67,46 @@ Statement 2: Based on collected shorebird species presence across the habitats m
 One additional variable that could influence the probability of American Avocet microhabitat use is the water depth surrounding habitats, a continuous variable measured in meters, collected via bathymetry or hands-on-measurement depending on depth. This variable might influence American Avocet habitat use as water depth is a significant driver of bird use in managed wetlands -- water depth may influence American Avocet use depending on feeding patterns (deeper areas are inaccessible to wading birds), present food type (different depths may lead to different flora and fauna presence), and predator presence (predators may reside in varying depths of water/predators may not be able to access certain water depths), playing a role in determining how American Avocets use these locales (Schacter et. al., 11). 
 
 # Problem 2
+
+## a.
+
+```{r}
+#| label: cleaning-data
+
+# create new object called 'nests_clean' from 'nests'
+nests_clean <- nests |> 
+  # clean names
+  clean_names() |> 
+  filter(
+    ant_species %in% c("RRB", "AB", "BBR")) |> 
+  mutate(
+    species_name_full = recode_values(ant_species,
+    "RRB" ~ "Crematogaster mimosae",
+    "AB" ~ "Crematogaster sjostedti", 
+    "BBR" ~ "Crematogaster nigriceps")) |> 
+  mutate(
+    species_name_full = fct_relevel(species_name_full,
+                                    "Crematogaster mimosae",
+                                    "Crematogaster sjostedti",
+                                    "Crematogaster nigriceps")) |> 
+  arrange(species_name_full) |> 
+  select(
+    height_cm, case_control, 
+    species_name_full)
+
+str(nests_clean)
+nests_clean |> slice_sample(n = 10)
+
+```
+
+## b. 
+
+In this data set, 1s and 0s indicate if a tree has a nest (1) or is "available" (0); in other words, they indicate if a tree contains a birds nest or not. 
+
+## c.
+
+Tree Height: Tree height is a continuous variable. It could
+
+Acacia Ant Species:
+
 # Problem 3
