@@ -66,12 +66,12 @@ mz_clean <- mz_data |>
   # use data from select columns to calculate new column
   mutate(total_activity_time = (
     time_spent_on_activites_hrs + time_spent_in_class_hrs
-    )) |> 
+  )) |> 
   select(
     date,
     completed_v_intended,
     total_activity_time
-)
+  )
 
 ```
 
@@ -84,9 +84,9 @@ In part 1 of the results section, the co-worker used a linear regression. In par
 
 ## b.
 
-Statement 1: Based collected American Avocet micro-habitat use and distance to water edge, American Avocet micro-habitat use is significantly influenced by proximity to water edge. 
+**Statement 1:** Based collected American Avocet micro-habitat use and distance to water edge, American Avocet micro-habitat use is significantly influenced by proximity to water edge. 
 
-Statement 2: Based on collected shorebird species presence across the habitats managed pond, non-tidal marsh, salt pond, tidal marsh, and tidal mudflap, shorebird species significantly differ by locale. 
+**Statement 2:** Based on collected shorebird species presence across the habitats managed pond, non-tidal marsh, salt pond, tidal marsh, and tidal mudflap, shorebird species significantly differ by locale. 
 
 ## c.
 
@@ -141,9 +141,9 @@ In this data set, 1s and 0s indicate if a tree has a nest (1) or is "available" 
 
 ## c.
 
-Tree Height: Tree height is a continuous variable, measured in centimeters. According to paragraph three in the introduction subsection, as well as paragraph two in the results subsection of "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
+**Tree Height:** Tree height is a continuous variable, measured in centimeters. According to paragraph three in the introduction subsection, as well as paragraph two in the results subsection of "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
 
-Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph three in the introduction subsection in "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may protect nests, reducing nest predation rates, and increase overall bird lifetime fitness.
+**Acacia Ant Species:** Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph three in the introduction subsection in "Symbiotic acacia ants drive nesting behavior by birds in an African savanna", the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may protect nests, reducing nest predation rates, and increase overall bird lifetime fitness.
 
 ## d.
 
@@ -153,7 +153,7 @@ Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C
 | 1 (full model)|      x      |      x      |  all predictors                  | 
 | 2 (species)   |      x      |             |  species                         |
 | 3 (height)    |             |      x      |  tree height                     |
-| 4 (interact)  |      x      |      x      | all predictors -- reliance       |
+| 4 (interact)  |      x      |      x      |  all predictors -- interacting   |
 
 ## e.
 
@@ -228,12 +228,11 @@ The best model as determined by Akaike’s Information Criterion (AIC) was the m
 ```{r}
 #| label: dharma-diagnostics
 
-# running dharma diagnostic
-diagnostic_checking <- simulateResiduals(fittedModel = model_4)
+# run dharma residuals
+plot(simulateResiduals(model_4))
 
-# display dharma diagnostic
-plot(diagnostic_checking)
 ```
+
 ```{r}
 #| label: summarizing
 #| echo: false
@@ -323,7 +322,7 @@ ggplot(data = nests_clean,
 
 ## i.
 
-*Figure 1. Ant species tree presence and tree height on nest presence probability.* Points represent observations of individual nest occurrences (0||1) with their respective tree heights (cm). Solid lines represent model predictions for nest presence, with shaded areas indicating the 95% confidence interval range. Colors represent ant species (pink: C. mimosae, blue: C. sjostedti, purple: C. nigriceps). Data originally from Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: **Symbiotic acacia ants drive nesting behavior by birds in an African savanna** [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322
+*Figure 1. Aggressive ant species tree presence and increasing tree height increase nest presence probability.* Points represent observations of individual nest occurrences (0||1) with their respective tree heights (cm). Solid lines represent model predictions for nest presence, with shaded ribbon areas indicating the 95% confidence interval range. Colors represent ant species (pink: C. mimosae, blue: C. sjostedti, purple: C. nigriceps). Data originally from Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: "Symbiotic acacia ants drive nesting behavior by birds in an African savanna" [Data set]. *Zenodo*. https://doi.org/10.5281/zenodo.8373322
 
 ## j.
 
@@ -346,7 +345,7 @@ Ant species presence and tree height interact to predict probability of bird pre
 
 ## a. 
 
-My visualizations used different metrics and different model types across Homework 2/3 and my affective visualization; in Homework 2 and 3 I used box plots to visualize my data, while I used a trend line to visualize my data in my affective visualization. Across my visualizations, I did not see many similarities -- my affective visualization reflected my predicted outcomes with different variables, while my visualizations in homework 2/3 did not show the trends that I depicted in my affective visualization; similarly, I did not see many patterns across my affective and effective visualizations, likely due to different metrics of creation and data alignment. I did not receive any feedback on my Homework 2 and 3 visualizations, however, in workshop, I got a lot of visual suggestions -- for instance, implementing a clearer trend line in my drawing -- which was reflected in my final affective visualization (I added a red trend line, and used colors to create clearer visual distinctions between my data). 
+My visualizations used different metrics and different model types across Homework 2/3 and my affective visualization; in Homework 2 and 3 I used box plots to visualize my data, while I used a trend line to visualize my data in my affective visualization. Across my visualizations, I did not see many similarities -- my affective visualization reflected my predicted outcomes using variables that I did not use in my 2/3 visualizations; subsequently, I did not see any patterns across my affective and effective visualizations, likely due to different metrics of creation and data alignment. I did not receive any feedback on my Homework 2 and 3 visualizations, however, in workshop, I got a lot of visual suggestions -- for instance, implementing a clearer trend line in my drawing -- which was reflected in my final affective visualization (I added a red trend line, and used different color schemes to create clearer visual distinctions between my data). 
 
 ## b. 
 
@@ -440,7 +439,7 @@ ggplot(
 ```
 ## e.
 
-*Figure 2. Activity time decreases productivity.* Small round solid green points represent individual measurements of productivity (% of tasks completed) in relation to time spent that day on activities (hours). Data from `193DS-personal-data-updated` (Zhao M, 2026).
+*Figure 2. Activity time decreases productivity.* Small descending round solid green points represent individual measurements of productivity (% of tasks completed) in relation to time spent that day on activities (hours). Data from `193DS-personal-data-updated` (Zhao M, 2026).
 
 ## f.
 
