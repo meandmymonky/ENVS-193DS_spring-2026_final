@@ -9,13 +9,90 @@ messages: false
 warning: false
 ---
 
+# Repository Link
+
 [GitHub Repository](https://github.com/meandmymonky/ENVS-193DS_spring-2026_final)
+
+# Set Up
+
+Packages:
 
 ```{r}
 #| label: reading-packages
 
-# reading packages
- 
- 
+# reading in packages
+library(tidyverse)
+library(here)
+library(janitor)
+library(readxl)
+library(here) 
+library(scales) 
+library(ggeffects) 
+library(MuMIn)
+library(forcats)
+
 ```
 
+Data:
+
+```{r}
+#| label: reading-data
+
+# creating object from 'nests' from data
+nests <- read.csv(here('data', 'nest_data_final.csv'))
+
+```
+
+```{r}
+#| label: cleaning-data
+
+# create new object called 'nests_clean' from 'nests'
+nests_clean <- nests |> 
+  # clean names
+  clean_names() |> 
+  filter(
+    ant_species %in% c("RRB", "AB", "BBR")) |> 
+  mutate(
+    species_name_full = recode_values(ant_species,
+    "RRB" ~ "Crematogaster mimosae",
+    "AB" ~ "Crematogaster sjostedti", 
+    "BBR" ~ "Crematogaster nigriceps")) |> 
+  mutate(
+    species_name_full = fct_relevel(species_name_full,
+                                    "Crematogaster mimosae",
+                                    "Crematogaster sjostedti",
+                                    "Crematogaster nigriceps")) |> 
+  arrange(species_name_full) |> 
+  select(
+    height_cm, case_control, 
+    species_name_full)
+
+nests_clean |> slice_sample(n = 10)
+
+```
+
+```{r}
+#| label: data-exploration
+#| echo: false
+```
+
+
+
+# Problem 1
+
+## a.
+
+In part 1 of the results section, the co-worker used a linear regression. In part 2 of the results section, the co-worker used a Chi-Squared test. 
+
+## b.
+
+Statement 1: Based collected American Avocet micro-habitat use and distance to water edge, American Avocet micro-habitat use is significantly influenced by proximity to water edge. 
+
+Statement 2: Based on collected shorebird species presence across the habitats managed pond, non-tidal marsh, salt pond, tidal marsh, and tidal mudflap, shorebird species significantly differ by locale. 
+
+## c.
+
+One additional variable that could influence the probability of American Avocet microhabitat use is the water depth surrounding habitats, a continuous variable measured in meters, collected via bathymetry or hands-on-measurement depending on depth. This variable might influence American Avocet habitat use as water depth is a significant driver of bird use in managed wetlands -- water depth may influence American Avocet use depending on feeding patterns (deeper areas are inaccessible to wading birds), present food type (different depths may lead to different flora and fauna presence), and predator presence (predators may reside in varying depths of water/predators may not be able to access certain water depths), playing a role in determining how American Avocets use these locales (Schacter et. al., 11). 
+
+# Problem 2
+# Problem 3
