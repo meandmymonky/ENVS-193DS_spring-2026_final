@@ -151,7 +151,7 @@ Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C
 
 ## d.
 
-| Model number | Ant Species | Tree Height | Canopy Area |  
+| Model number | Ant Species | Tree Height | Tree life state |  
 |--------------|:-----------:|:-----------:|:-----------:|  
 | 1 (no term)  |      x      |      x      |             |
 | 2 (with term)|      x      |      x      |      x      |
