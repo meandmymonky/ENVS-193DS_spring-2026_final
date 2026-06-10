@@ -62,9 +62,15 @@ mz_clean <- mz_data |>
     completed_v_intended = (
       number_of_completed_tasks/number_of_intended_tasks
     ) * 100) |> 
+  # use data from select columns to calculate new column
   mutate(total_activity_time = (
     time_spent_on_activites_hrs + time_spent_in_class_hrs
-    ))
+    )) |> 
+  select(
+    date,
+    completed_v_intended,
+    total_activity_time
+)
 
 ```
 
@@ -312,7 +318,7 @@ ggplot(data = nests_clean,
 
 ## i.
 
-Figure 1. Ant species tree presence and tree height on nest presence probability. Points represent observations of individual nest occurrences (0||1) with their respective tree heights (cm). Solid lines represent model predictions for nest presence, with shaded areas indicating the 95% confidence interval range. Colors represent ant species (pink: C. mimosae, blue: C. sjostedti, purple: C. nigriceps). Data originally from Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: **Symbiotic acacia ants drive nesting behavior by birds in an African savanna** [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322
+*Figure 1. Ant species tree presence and tree height on nest presence probability.* Points represent observations of individual nest occurrences (0||1) with their respective tree heights (cm). Solid lines represent model predictions for nest presence, with shaded areas indicating the 95% confidence interval range. Colors represent ant species (pink: C. mimosae, blue: C. sjostedti, purple: C. nigriceps). Data originally from Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: **Symbiotic acacia ants drive nesting behavior by birds in an African savanna** [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322
 
 ## j.
 
@@ -343,44 +349,97 @@ My visualizations use different metrics and different model types across Homewor
 
 ## b. 
 
-Using the response variable of productivity % and the predictor variable of activity time (as expressed in my affective visualization as an aggregation of outside activity and class time), one analysis that we talked about this quarter that I could apply to my research question is a correlation analysis, specifically a Spearmans correlation. Both of my variables are independent numerical continuous variables, with one variable (activity time) predicted to have an influence on the other variable (productivity %). Subsequently, I believe that a correlation analysis is appropriate in trying to answer the question: how do my activities impact my productivity?
+Using the response variable of productivity % and the predictor variable of activity time (as expressed in my affective visualization as an aggregation of outside activity and class time), one analysis that we talked about this quarter that I could apply to my research question is a correlation analysis, specifically a Spearmans correlation. Both of my variables are independent numerical continuous variables, with one variable (activity time) predicted to have an influence on -- monotonic data -- the other variable (productivity %). Subsequently, I believe that a correlation analysis is appropriate in trying to answer the question: how do my activities impact my productivity?
 
 ## c.
 
 ```{r}
-#| label: assumption checking
+#| label: assumption-checking
 
 # base layer: ggplot
 ggplot(
   # starting data frame
-  data = mz_data,
+  data = mz_clean,
   # x-axis
-  mapping = aes(x = "",
+  mapping = aes(x = total_activity_time,
                 # y-axis
-                y = kelp_elong)
+                y = completed_v_intended)
 ) +
   # first layer: points
   geom_point(
     # coloring points
-    color = 'chartreuse4',
+    color = "chartreuse4",
     # changing opacity
     alpha = 0.8
   ) +
   # relabelling x-axis, y-axis, and title
   labs(
     # label x-axis
-    x = 'Ocean Temperature (°C)',
+    x = "Time Spent on Activites (hours)",
     # label y-axis
-    y = expression(paste('Giant Kelp Frond Elongation Rate (cm day' ^-1,')')),
+    y = "Tasks Completed (%)",
     # add chart title
-    title = 'Ocean Temperature and Giant Kelp Frond Growth Correlation')
+    title = 'Productivity and Activity Time Correlation') +
+  # use classic theme
+  theme_classic() +
+  # remove legend
+  theme(legend.position = "none")
 
 ```
 
+```{r}
+#| label: analysis-running
+
+cor.test(
+  # y-variable
+  mz_clean$completed_v_intended,
+  # x-variable
+  mz_clean$total_activity_time,
+  # use spearmans test
+  method = 'spearman',
+  # use normal p-approximation
+  exact = FALSE)
+
+```
 
 ## d.
 
+```{r}
+#| label: spearman-visualization
+
+# base layer: ggplot
+ggplot(
+  # starting data frame
+  data = mz_clean,
+  # x-axis
+  mapping = aes(x = total_activity_time,
+                # y-axis
+                y = completed_v_intended)
+) +
+  # first layer: points
+  geom_point(
+    # coloring points
+    color = "chartreuse4",
+    # changing opacity
+    alpha = 0.8
+  ) +
+  # relabelling x-axis, y-axis, and title
+  labs(
+    # label x-axis
+    x = "Time Spent on Activities (hours)",
+    # label y-axis
+    y = "Tasks Completed (%)",
+    # add chart title
+    title = 'Activity Time v. Productivity') +
+  # use classic theme
+  theme_classic() +
+  # remove legend
+  theme(legend.position = "none")
+
+```
 ## e.
+
+*Figure 2. Activity time decreases productivity.* Small round solid green points represent individual measurements of productivity (% of tasks completed) in relation to time spent that day on activities (hours). Data from `193DS-personal-data-updated` (Zhao M, 2026).
 
 ## f.
 
