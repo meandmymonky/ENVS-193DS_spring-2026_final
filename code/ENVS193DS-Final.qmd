@@ -216,12 +216,12 @@ summary(model_4)
 ## h.
 
 ```{r}
-#| label: model-predictions
+#| label: all-predictions
 
-# generating predictions
+# generating all predictions
 predictions <- ggpredict(
   model_4,
-  terms = c("height_cm", "species_name_full")) |> 
+  terms = c("height_cm [all]", "species_name_full")) |> 
   # renaming columns
   rename(height_cm = x,
          species_name_full = group)
@@ -229,6 +229,8 @@ predictions <- ggpredict(
 ```
 
 ```{r}
+#| label: data-visualization
+
 ggplot(data = nests_clean,
        aes(x = height_cm,
            y = case_control)) +
@@ -243,39 +245,37 @@ ggplot(data = nests_clean,
               aes(x = height_cm,
                   y = predicted,
                   ymin = conf.low,
-                  ymax = conf.high,
+                  ymax = conf.high,,
                   fill = species_name_full),
               alpha = 0.1) +
-  facet_wrap(~ species_name_full,
-             labeller = labeller(species_name_full))
-```
-
-```{r}
-#| label: visualizations
-
-ggplot(data = nests_clean,
-       mapping = aes(x = height_cm,
-                     y = case_control,
-                     color = species_name_full)) +
-  geom_jitter(width = 0,
-              height = 0.2,
-              alpha = 0.5,
-              shape = 21) +
-  geom_pointrange(data = predictions,
-                  mapping = aes(x = height_cm,
-                                y = predicted,
-                                ymin = conf.low,
-                                ymax = conf.high),
-                  inherit.aes = FALSE) +
-  facet_wrap(~ species_name_full) +
+  facet_wrap(vars(species_name_full)) +
+  labs(
+    x = "Tree Height (cm)",
+    y = "Probability of nest occurence (%)") + 
+  scale_color_manual(
+    values = c("Crematogaster mimosae" = "violetred2",
+               "Crematogaster sjostedti" = "steelblue1",
+               "Crematogaster nigriceps" = "mediumorchid4")) +
+  theme_classic() +
   theme(legend.position = "none")
 
 ```
 
+
 ## i.
 
 ## j.
-IM GONNA KMMSSSSS BOIIIIIIIIIIIIIIIII holy shit bruh
+
+```{r}
+#| label: predictions
+
+# generating prediction
+ggpredict(model_4,
+          terms = c("height_cm [600]",
+                    "species_name_full"))
+
+```
+
 ## k.
 
 # Problem 3
