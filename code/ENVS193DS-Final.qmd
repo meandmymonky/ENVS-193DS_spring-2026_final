@@ -7,6 +7,7 @@ toc: true
 editor: source
 messages: false
 warning: false
+toc: true
 ---
 
 # Repository Link
@@ -30,6 +31,7 @@ library(scales)
 library(ggeffects) 
 library(MuMIn)
 library(forcats)
+library(DHARMa)
 
 ```
 
@@ -46,9 +48,38 @@ nests <- read.csv(here('data', 'nest_data_final.csv'))
 ```{r}
 #| label: data-exploration
 #| echo: false
+
+# interaction term data frame
+# create new object called 'nests_clean' from 'nests'
+nests_clean_it <- nests |> 
+  # clean names
+  clean_names() |> 
+  # filter ant species
+  filter(
+    ant_species %in% c("RRB", "AB", "BBR")) |> 
+  # full names
+  mutate(
+    species_name_full = recode_values(ant_species,
+    "RRB" ~ "Crematogaster mimosae",
+    "AB" ~ "Crematogaster sjostedti", 
+    "BBR" ~ "Crematogaster nigriceps")) |> 
+  # reordering species
+  mutate(
+    # order of species
+    species_name_full = fct_relevel(species_name_full,
+                                    "Crematogaster mimosae",
+                                    "Crematogaster sjostedti",
+                                    "Crematogaster nigriceps")) |>
+  # arrange in order
+  arrange(species_name_full) |> 
+  # columns of interest
+  select(
+    height_cm, 
+    case_control, 
+    species_name_full,
+    canopy_area)
+
 ```
-
-
 
 # Problem 1
 
@@ -77,24 +108,33 @@ One additional variable that could influence the probability of American Avocet 
 nests_clean <- nests |> 
   # clean names
   clean_names() |> 
+  # filter ant species
   filter(
     ant_species %in% c("RRB", "AB", "BBR")) |> 
+  # full names
   mutate(
     species_name_full = recode_values(ant_species,
     "RRB" ~ "Crematogaster mimosae",
     "AB" ~ "Crematogaster sjostedti", 
     "BBR" ~ "Crematogaster nigriceps")) |> 
+  # reordering species
   mutate(
+    # order of species
     species_name_full = fct_relevel(species_name_full,
                                     "Crematogaster mimosae",
                                     "Crematogaster sjostedti",
-                                    "Crematogaster nigriceps")) |> 
+                                    "Crematogaster nigriceps")) |>
+  # arrange in order
   arrange(species_name_full) |> 
+  # columns of interest
   select(
-    height_cm, case_control, 
+    height_cm, 
+    case_control, 
     species_name_full)
 
+# display structure
 str(nests_clean)
+# display 10 random rows
 nests_clean |> slice_sample(n = 10)
 
 ```
@@ -105,8 +145,90 @@ In this data set, 1s and 0s indicate if a tree has a nest (1) or is "available" 
 
 ## c.
 
-Tree Height: Tree height is a continuous variable. It could
+Tree Height: Tree height is a continuous variable. According to paragraph two in the results subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, as tree height increases, probability of nest occurrence probability will increase as well, as higher nests decrease ground predator nest predation rates, increasing overall bird lifetime fitness. 
 
-Acacia Ant Species:
+Acacia Ant Species: Acacia ant species is a categorical variable (C.nigriceps, C.mimosae, and C.sjostedti). According to paragraph one in the discussion subsection in **Symbiotic acacia ants drive nesting behavior by birds in an African savanna**, the presence of more aggressive defending symbionts (C.nigriceps and C.mimosae) will result in an increased probability of nest occurrence probability, aggressive defender presence may reduce nest predation rates, and increase overall bird lifetime fitness.
+
+## d.
+
+| Model number | Ant Species | Tree Height | Canopy Area |  
+|--------------|:-----------:|:-----------:|:-----------:|  
+| 1 (no term)  |      x      |      x      |             |
+| 2 (with term)|      x      |      x      |      x      |
+| 3 (species)  |      x      |             |             |
+| 4 (height)   |             |      x      |             |
+| 5 (canopy)   |             |             |      x      |
+
+## e.
+
+```{r}
+#| label: model-running
+#| output: false
+
+# model 1
+model_1 <- lm(case_control ~ height_cm + species_name_full,
+              data = nests_clean_it)
+
+# model 2
+model_2 <- lm(case_control ~ height_cm + species_name_full + canopy_area,
+              data = nests_clean_it)
+
+# model 3
+model_3 <- lm(case_control ~ species_name_full,
+              data = nests_clean_it)
+
+# model 4
+model_4 <- lm(case_control ~ height_cm,
+              data = nests_clean_it)
+
+# model 5
+model_5 <- lm(case_control ~ canopy_area,
+              data = nests_clean_it)
+```
+
+## f.
+
+```{r}
+#| label: AIC
+#| output: false
+
+# 
+AICc(
+  model_1,
+  model_2,
+  model_3,
+  model_4,
+  model_5
+) |> 
+arrange(AICc)
+
+```
+
+The best model as determined by Akaike’s Information Criterion (AIC) was the model using predictor variables ant species, tree height, and canopy area for the response variable of bird nest presence (model 2).
+
+## g.
+
+```{r}
+#| label: dharma-diagnostics
+
+diagnostic_checking <- simulateResiduals(fittedModel = model_2)
+
+```
+
+
+## h.
+
+## i.
+
+## j.
+
+## k.
 
 # Problem 3
+
+## a. 
+
+My visualizations use different metrics and different model types across Homework 2/3 and my affective visualization; in Homework 2 and 3 I used box plots to visualize my data, while I used a trendline to visualize my data in my affective visualization. Across my visualizations, I did not see many similarities -- my affective visualization reflected my predicted outcomes with different variables, while my visualizations in homework 2/3 did not show the trends that I depicted in my affective visualization; similarly, I did not see many patterns across my affective and effective visualizations, likely due to different metrics of creation and data alignment. I did not receive any feedback on my Homework 2 and 3 visualizations, however, in workshop, I got a lot of visual suggestions -- for instance, implementing a clearer trend line in my drawing -- which was reflected in my final affective visualization (I added a red trend line, and used colors to create clearer visual distinctions between my data). 
+
+## b. 
+
