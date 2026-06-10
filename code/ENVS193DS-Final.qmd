@@ -32,6 +32,7 @@ library(ggeffects)
 library(MuMIn)
 library(forcats)
 library(DHARMa)
+library(ggeffects)
 
 ```
 
@@ -215,8 +216,28 @@ diagnostic_checking <- simulateResiduals(fittedModel = model_2)
 
 ```
 
-
 ## h.
+
+```{r}
+#| label: figure
+
+ggplot(data = nests_clean_it,
+       mapping = aes(x = case_control,
+                     y = height_cm,
+                     color = case_control)) +
+  geom_jitter(width = 0.1,
+              height = 0,
+              alpha = 0.5,
+              shape = 21) +
+  geom_pointrange(data = preds,
+                  mapping = aes(x = water_treatment,
+                                y = predicted,
+                                ymin = conf.low,
+                                ymax = conf.high)) +
+  facet_wrap(~ species_name) +
+  theme(legend.position = 'none')
+
+```
 
 ## i.
 
